@@ -1,13 +1,14 @@
 <template>
-  <div id="app">
-    <h2>测试测试</h2>
+  <div id="app">  
     <!-- 路由出口 -->
     <router-view/>
   </div>
 </template>
 <script>
-export default {
-  name: 'app'
+export default{
+  setup() {
+    
+  },
 }
 </script>
 

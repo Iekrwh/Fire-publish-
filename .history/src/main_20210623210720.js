@@ -9,5 +9,5 @@ Vue.config.productionTip = false
 new Vue({
   router,
   render: h => h(App)
-  // el:'app' 等于 $mount('#app')
+  // el:
 }).$mount('#app')
