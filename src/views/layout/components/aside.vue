@@ -6,7 +6,9 @@
       text-color="#fff"
       active-text-color="#ffd04b"
       router
+      :collapse='isCollapse'
       >
+      <!-- :collapse 折叠导航栏 绑定一个布尔值 -->
         <!-- @open="handleOpen"
       @close="handleClose" 为多级菜单打开关闭的绑定方法 -->
        <!-- default-active 当前被激活的按钮  对应为子元素的index -->
@@ -48,9 +50,10 @@
 export default {
   name: 'AppAside',
   components: {},
+  props: ['is-collapse'], // 组件给子组件传值可以用props
   data () {
     return {
-
+    //   isCollapse: false
     }
   },
   computed: {},
@@ -71,9 +74,5 @@ export default {
 </script>
 <style lang='less' scoped>
 //@import url(); 引入公共css类
-.nav-menu {
-    box-sizing: border-box;
-    padding-top:70px ;
-}
 
 </style>

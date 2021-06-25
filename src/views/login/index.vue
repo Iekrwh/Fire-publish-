@@ -91,8 +91,18 @@ export default {
           message: '登陆成功',
           type: 'success'
         })
+
         // 关闭 登录按钮的loading
         this.loginLoading = false
+
+        // 将接口返回的用户相关数据放到本地存储,方便应用数据共享
+        // 本地存储只能存储字符串,而res返回的是一个对象
+        // 如果想要存储对象、数组类型的数据,则把它们转为json字符串进行存储
+        // 任何对象obj.toString() 都为 object
+        // 使用json.stringify()方法
+        // 本地存储为字符串
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
+
         // 登录成功跳转到首页   如果路由中没有指定name则需要加上地址后缀 非常冗余
         this.$router.push({
           name: 'home'

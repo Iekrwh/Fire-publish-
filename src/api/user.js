@@ -11,16 +11,20 @@ export const login = data => {
 
 // 获取用户信息
 export const getUserProfile = () => {
+  // 因为本地存储的是json字符串所以要把json字符串重新转为原来的类型
+//   const user = JSON.parse(window.localStorage.getItem('user'))
+  //   console.log(user)
   return request({
     method: 'GET',
-    url: '/mp/v1_0/user/profile',
+    url: '/mp/v1_0/user/profile'
     // 后端api要求把需要授权的用户身份放到请求头中
     // axios 可以通过headers 设置请求头
-    headers: {
-      // 属性名和值都得看接口的要求
-      // 属性名为 Authorization
-      // 值为 Bearer +token值
-      Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NTYwNTYwNjgsInVzZXJfaWQiOjEsInJlZnJlc2giOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZX0.4MnojiXiUID8T6oL2eKSMYMO2xWOm0mZ6WLMaBpUXTE'
-    }
+    // headers: {
+    // 属性名和值都得看接口的要求
+    // 属性名为 Authorization
+    // 值为 Bearer +token值
+    // 不要用加号拼接 用反引号 `${}`拼接
+    //   Authorization: `Bearer ${user.token}`
+    // }
   })
 }
