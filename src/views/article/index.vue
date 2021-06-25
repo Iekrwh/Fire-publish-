@@ -12,13 +12,15 @@
       <!-- 数据筛选表单 -->
       <el-form ref="form" :model="form" label-width="50px">
         <el-form-item label="状态">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="审核通过"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+            <!-- 表单绑定status -->
+          <el-radio-group v-model="status">
+              <!-- el-radio 默认把label作为文本和选中之后的value值 -->
+            <el-radio :label="null" >全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
@@ -39,36 +41,56 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">查询</el-button>
+            <!-- button 按钮的click事件会有默认参数,当没有指定参数时,它会默认传一个没有用的数据 -->
+          <el-button type="primary" @click="loadArticles(1)">查询</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>根据筛选共查询到 4200 条结果：</span>
+        <span>根据筛选共查询到 {{totalCount}} 条结果：</span>
       </div>
       <!-- 数据列表 -->
       <el-table class="list-table" :data="articles" stripe style="width: 100%">
-        <el-table-column prop="pubdate" label="封面"> </el-table-column>
+        <el-table-column prop="pubdate" label="封面"
+          ><template slot-scope="scope">
+            <img :src="scope.row.cover.images[0]" alt=""  class="article-cover" v-if="scope.row.cover.images[0]"
+          />
+          <img src="./no-cover.png" class="article-cover" v-else alt="">
+          </template>
+        </el-table-column>
         <el-table-column prop="title" label="标题"> </el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
-            <!-- 如果需要自定义模板中获取当前遍历数据,那么在 template 声明 slot-scope="scope" -->
+            <!-- 如果需要自定义模板中获取当前遍历数据,那么在 template 声明 slot-scope="scope" scope可以自定义名称-->
             <!-- scope$index 当前遍历项索引   scope.row当前遍历对象数据 -->
-            <el-tag v-if="scope.row.status === 0" type="info" effect="dark">草稿</el-tag>
-            <el-tag v-else-if="scope.row.status === 1" effect="dark"
+            <el-tag
+              effect="dark"
+              :type="articleStatus[scope.row.status].type"
+              >{{ articleStatus[scope.row.status].text }}</el-tag
+            >
+            <!-- <el-tag v-else-if="scope.row.status === 1" effect="dark"
               >待审核</el-tag
             >
-            <el-tag v-else-if="scope.row.status === 2"  type="success" effect="dark"
+            <el-tag
+              v-else-if="scope.row.status === 2"
+              type="success"
+              effect="dark"
               >审核通过</el-tag
             >
-            <el-tag v-else-if="scope.row.status === 3"  type="warning" effect="dark"
+            <el-tag
+              v-else-if="scope.row.status === 3"
+              type="warning"
+              effect="dark"
               >审核失败</el-tag
             >
-            <el-tag v-else-if="scope.row.status === 4" type="danger" effect="dark"
+            <el-tag
+              v-else-if="scope.row.status === 4"
+              type="danger"
+              effect="dark"
               >已删除</el-tag
-            >
+            > -->
           </template>
         </el-table-column>
         <el-table-column prop="pubdate" label="发布时间"> </el-table-column>
@@ -80,7 +102,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination background layout="prev, pager, next" :total="1000">
+      <el-pagination background layout="prev, pager, next" @current-change='onCurrentChange' :total="totalCount"  :page-size='perSize'>
       </el-pagination>
     </el-card>
 
@@ -108,17 +130,41 @@ export default {
       },
 
       // 文章列表内容
-      articles: []
+      articles: [],
+      articleStatus: [
+        { type: '', satatus: 0, text: '草稿' },
+        { type: 'warning', satatus: 1, text: '待审核' },
+        { type: 'success', satatus: 2, text: '审核通过' },
+        { type: 'info', satatus: 3, text: '审核失败' },
+        { type: 'danger', satatus: 4, text: '已删除' }],
+      totalCount: 0, // 总数据条数
+      perSize: 10, // 每页显示数量
+      status: null // 筛选文章状态 不传为全部
     }
   },
   computed: {},
   watch: {},
   methods: {
-    loadArticles () {
-      getArticles().then(res => {
+    // 默认值 省参
+    loadArticles (page = 1) {
+      getArticles({
+        status: this.status, // 筛选文章状态 不传为全部
+        page, // 第几页
+        per_page: this.perSize // 每页多少列
+      }).then(res => {
         console.log(res)
-        this.articles = res.data.data.results
+        // total_count : totalCount 为变量重命名 因为指定要驼峰命名法
+        // const {} =res.data.data  自动匹配该对象里的对应的值
+        const { results, total_count: totalCount } = res.data.data
+        this.articles = results
+        this.totalCount = totalCount
       })
+    },
+
+    onCurrentChange (page) {
+    //   console.log(page) // 当前页面
+    // 调用接口 传参
+      this.loadArticles(page)
     },
 
     onSubmit () {
@@ -127,7 +173,7 @@ export default {
   },
   // 生命周期
   created () {
-    this.loadArticles()
+    this.loadArticles(1)
   },
   mounted () { },
   beforeCreate () { },
@@ -147,5 +193,10 @@ export default {
 
 .list-table {
   margin-bottom: 20px;
+}
+
+.article-cover {
+    width: 100px;
+    background-size: cover;
 }
 </style>
