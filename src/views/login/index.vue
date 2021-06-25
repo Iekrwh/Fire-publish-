@@ -91,7 +91,13 @@ export default {
           message: '登陆成功',
           type: 'success'
         })
+        // 关闭 登录按钮的loading
         this.loginLoading = false
+        // 登录成功跳转到首页   如果路由中没有指定name则需要加上地址后缀 非常冗余
+        this.$router.push({
+          name: 'home'
+        })
+
         // eslint-disable-next-line handle-callback-err
       }).catch(err => {
         this.$message.error('登陆失败,手机号或验证码错误')
