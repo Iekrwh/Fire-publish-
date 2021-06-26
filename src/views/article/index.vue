@@ -117,7 +117,7 @@
         <!-- 表格列默认只能渲染普通文本,如需要展示图片、按钮就需要自定义表格列模板 -->
         <el-table-column label="操作">
           <template slot-scope='scope' >
-            <el-button circle icon="el-icon-edit" ></el-button>
+            <el-button circle icon="el-icon-edit" @click='$router.push("/publish?id="+scope.row.id)' ></el-button>
             <el-button type="danger" circle icon="el-icon-delete" @click="onDeletArticle(scope.row.id)"></el-button>
           </template>
         </el-table-column>
@@ -223,12 +223,13 @@ export default {
         type: 'warning'
       }).then(() => {
         DeleteArticle(articleID.toString()).then(res => {
-          console.log(res)
+        //   console.log(res)
         })
         this.$message({
           type: 'success',
           message: '删除成功'
         })
+        console.log(this.page)
         // 删除后更新当前页 重新查询文章列表
         this.loadArticles(this.page)
       }).catch(() => {
