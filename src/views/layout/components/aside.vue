@@ -1,6 +1,6 @@
 <template>
     <el-menu
-    class = 'nav-menu'
+    class = 'nav-menu el-menu-vertical-demo'
       default-active="/"
       background-color="#002033"
       text-color="#fff"
@@ -74,5 +74,9 @@ export default {
 </script>
 <style lang='less' scoped>
 //@import url(); 引入公共css类
-
+// 要指定宽度不然动画会卡顿
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 200px;
+  min-height: 400px;
+}
 </style>

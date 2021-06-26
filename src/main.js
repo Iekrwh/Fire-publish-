@@ -3,8 +3,15 @@ import App from './App.vue'
 import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+// import { ElementTiptapPlugin } from 'element-tiptap'
+// import 'element-tiptap/lib/index.css'
 
 Vue.use(ElementUI)
+
+// Vue.use(ElementTiptapPlugin, {
+//   lang: 'zh'
+// })
+// // 现在你已经在全局注册了 `el-tiptap` 组件。
 
 Vue.config.productionTip = false
 
