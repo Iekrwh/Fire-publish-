@@ -9,11 +9,11 @@
           }}</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
-      <el-form ref="form" :model="form" label-width="60px">
-        <el-form-item label="标题">
+      <el-form ref="publish-form" :model="article" label-width="60px" :rules='formRules'>
+        <el-form-item label="标题" prop="title">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
+        <el-form-item label="内容" prop="content">
           <!-- <el-input type="textarea" v-model="article.content"></el-input> -->
           <el-tiptap
             v-model="article.content"
@@ -31,7 +31,7 @@
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="频道">
+        <el-form-item label="频道" prop="channel_id">
           <el-select v-model="article.channel_id" placeholder="请选择频道">
             <el-option
               :label="channle.name"
@@ -138,7 +138,24 @@ export default {
         new Preview(),
         new CodeBlock(),
         new TextColor()
-      ]
+      ],
+      formRules: {
+        title: [{ required: true, message: '请输入文章标题', trigger: 'blur' },
+          { min: 5, max: 30, message: '标题长度 在 3 到 30 个字符范围', trigger: 'blur' }],
+        content: [
+          { required: true, message: '请输入内容', trigger: 'change' },
+          {
+            validator (rule, value, callback) {
+              if (value === '<p></p>') {
+                callback(new Error('请输入文章内容'))
+              } else {
+                callback()
+              }
+            }
+          }
+        ],
+        channel_id: [{ required: true, message: '请选择发布的频道', trigger: 'blur' }]
+      }
     }
   },
   computed: {},
@@ -151,25 +168,32 @@ export default {
       })
     },
     onPublis (draft = false) { // 发表按钮绑定方法
-      const articleID = this.$route.query.id
-      if (articleID) { // 判断是否为编辑内容
-        updateArticle(articleID, this.article, draft).then(res => {
-          console.log(res)
-          this.$message({
-            message: `${draft ? '存入草稿' : '修改'}成功`,
-            type: 'success'
+      this.$refs['publish-form'].validate(valid => { // 验证富文本 内容
+        console.log('form')
+        if (!valid) {
+          return
+        }
+
+        const articleID = this.$route.query.id
+        if (articleID) { // 判断是否为编辑内容
+          updateArticle(articleID, this.article, draft).then(res => {
+            console.log(res)
+            this.$message({
+              message: `${draft ? '存入草稿' : '修改'}成功`,
+              type: 'success'
+            })
+            this.$router.push('/article')
           })
-          this.$router.push('/article')
-        })
-      } else { // 为空则为新发布
-        addArticle(this.article, draft).then(res => {
+        } else { // 为空则为新发布
+          addArticle(this.article, draft).then(res => {
           // console.log(res)
-          this.$message({
-            message: `${draft ? '存入草稿' : '发布'}成功`,
-            type: 'success'
+            this.$message({
+              message: `${draft ? '存入草稿' : '发布'}成功`,
+              type: 'success'
+            })
           })
-        })
-      }
+        }
+      })
     },
     loadArticle () { // 获取文章内容
       getArticle(this.$route.query.id).then(res => {
