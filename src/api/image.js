@@ -24,3 +24,25 @@ export const getImages = params => {
     params
   })
 }
+
+// 收藏素材列表
+
+export const collectImages = (imageID, collect) => {
+  return request({
+    method: 'PUT',
+    url: `/mp/v1_0/user/images/${imageID}`,
+    data: {
+      collect
+    }
+  })
+}
+
+// 删除素材
+
+export const deleteImages = imageID => {
+  return request({
+    method: 'DELETE',
+    url: `/mp/v1_0/user/images/${imageID}`
+
+  })
+}
