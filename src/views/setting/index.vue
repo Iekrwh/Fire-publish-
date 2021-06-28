@@ -9,21 +9,21 @@
       </div>
       <el-row>
         <el-col :span="16">
-          <el-form ref="form" :model="user" label-width="80px">
+          <el-form ref="form" :model="user" label-width="80px" :rules='rules'>
             <el-form-item label="编号">  <el-input v-model="user.id" disabled></el-input> </el-form-item>
             <el-form-item label="手机">  <el-input v-model="user.mobile" disabled></el-input> </el-form-item>
-            <el-form-item label="活动名称">
+            <el-form-item label="活动名称" prop="name">
               <el-input v-model="user.name"></el-input>
             </el-form-item>
-            <el-form-item label="媒体介绍">
+            <el-form-item label="媒体介绍" prop="intro">
               <el-input v-model="user.intro"></el-input>
             </el-form-item>
-            <el-form-item label="邮箱">
+            <el-form-item label="邮箱" prop="email">
               <el-input type="textarea" v-model="user.email"></el-input>
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">保存</el-button>
+              <el-button type="primary" @click="onUpdataUser" :loading='updateUser'>保存</el-button>
             </el-form-item>
           </el-form></el-col
         >
@@ -61,7 +61,7 @@
  <!-- <img width="200" :src="previewImage" alt=""> -->
   <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="onUpdatePhoto">确 定</el-button>
+    <el-button :loading='updatePhotoLoding' type="primary" @click="onUpdatePhoto">确 定</el-button>
   </span>
 </el-dialog>
 
@@ -69,25 +69,16 @@
 </template>
 
 <script>
-import { getUserProfile, updateUserPhoto } from '@/api/user'
+import { getUserProfile, updateUserPhoto, updateUser } from '@/api/user'
 import 'cropperjs/dist/cropper.css'
 import Cropper from 'cropperjs'
+import globalBus from '@/utils/global-bus'
 
 export default {
   name: 'SettingIndex',
   components: {},
   data () {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
       user: {
         email: '',
         id: null,
@@ -98,18 +89,44 @@ export default {
       }, // 用户资料
       dialogVisible: false, // 控制遮罩层和对话框
       previewImage: '', // 预览图片
-      cropper: null // 裁切器实例
+      cropper: null, // 裁切器实例
+      updatePhotoLoding: false, // 头像 loading状态
+      updateUser: false, // 登陆 loading状态
+      rules: {
+        name: [{ required: true, message: '请输入活动名称', trigger: 'blur' }, { min: 1, max: 7, message: '请输入 1 到 7 个字符', trigger: 'change' }],
+        intro: [{ required: true, message: '请输入媒体介绍', trigger: 'blur' }],
+        email: [{ required: true, message: '请输入邮箱', trigger: 'blur' },
+          { pattern: /.*@.*.com$/, message: '请输入正确的邮箱', trigger: 'blur' }
+        ]
+
+      }
     }
   },
   computed: {},
   watch: {},
   methods: {
-    onSubmit () {
-      console.log('submit!')
+    onUpdataUser () {
+      this.updateUser = true
+      const { name, intro, email } = this.user
+      updateUser({
+        name,
+        intro,
+        email
+      }).then(res => {
+        this.$message({
+          type: 'success',
+          message: '修改资料成功'
+        })
+
+        // 发布通知告诉顶部导航组件 请求调用
+        globalBus.$emit('update-user', this.user)
+
+        this.updateUser = false
+      })
     },
     loadUser () {
       getUserProfile().then(res => {
-        console.log(res)
+        // console.log(res)
         this.user = res.data.data
       })
     },
@@ -153,6 +170,7 @@ export default {
       })
     },
     onUpdatePhoto () { // 修改头像确认按钮
+      this.updatePhotoLoding = true
       // 获取裁切后的图片
       this.cropper.getCroppedCanvas().toBlob(blob => {
         // console.log(blob)
@@ -165,6 +183,16 @@ export default {
           //   this.user.photo = res.data.data.photo // 更新头像绑定地址
 
           this.user.photo = window.URL.createObjectURL(blob) // 更新头像绑定地址
+
+          // 发布通知告诉顶部导航组件 请求调用
+          globalBus.$emit('update-user', this.user)
+
+          this.updatePhotoLoding = false
+
+          this.$message({
+            type: 'success',
+            message: '修改头像成功'
+          })
         })
       })
     },

@@ -22,7 +22,7 @@
             下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
           </span> -->
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>设置</el-dropdown-item>
+            <el-dropdown-item @click.native="onsetting">设置</el-dropdown-item>
             <!-- el组件默认是不识别原生事件的 除非内容做了处理  我们可以添加.native-->
             <el-dropdown-item @click.native="onLogout">退出</el-dropdown-item>
           </el-dropdown-menu>
@@ -38,6 +38,7 @@
 <script>
 import AppAside from './components/aside'
 import { getUserProfile } from '@/api/user'
+import globalBus from '@/utils/global-bus'
 
 export default {
   name: 'LayoutIndex',
@@ -46,7 +47,7 @@ export default {
   },
   data () {
     return {
-      user: {}, // 当前用户的学校
+      user: {}, // 当前用户的信息
       isCollapse: false // 侧边导航栏展开状态
     }
   },
@@ -82,10 +83,20 @@ export default {
           message: '已取消退出'
         })
       })
+    },
+    onsetting () {
+      this.$router.push('/setting')
     }
   },
   created () {
     this.loadUserProfile()
+    // 注册自定义事件 只有当中事件发布 被请求调用之后才会执行
+    globalBus.$on('update-user', (data) => {
+      console.log('update', data)
+      //   this.user = data  //不要使用赋值 会绑定同步 赋值为内存地址
+      this.user.name = data.name
+      this.user.photo = data.photo
+    })
   },
   mounted () { },
   beforeCreate () { },
