@@ -202,6 +202,7 @@ export default {
               message: `${draft ? '存入草稿' : '发布'}成功`,
               type: 'success'
             })
+            this.$router.push('/article')
           })
         }
       })
