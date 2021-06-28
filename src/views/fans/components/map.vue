@@ -4,6 +4,7 @@
 
 <script>
 import * as echarts from 'echarts'
+import 'echarts/dist/extension/bmap' // bmap模块
 
 export default {
   name: 'Map',

@@ -3,16 +3,19 @@
     <div style="width: 500px; height: 500px" ref="chart"></div>
     <h2>地图图例</h2>
     <map-demo></map-demo>
+    <h2>百度地图样例</h2>
+    <b-map></b-map>
   </div>
 </template>
 
 <script>
 import * as echarts from 'echarts'
 import MapDemo from './components/map'
+import bMap from './components/bmap' // 单独百度地图
 
 export default {
   name: 'Fans',
-  components: { MapDemo },
+  components: { MapDemo, bMap },
   data () {
     return {
 

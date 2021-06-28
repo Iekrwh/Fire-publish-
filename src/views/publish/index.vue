@@ -24,12 +24,21 @@
           ></el-tiptap>
         </el-form-item>
         <el-form-item label="封面">
-          <el-radio-group v-model="article.cover.type">
+          <el-radio-group v-model="article.cover.type" >
             <el-radio :label="1">单图</el-radio>
             <el-radio :label="3">三图</el-radio>
             <el-radio :label="0">无图</el-radio>
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
+          <!-- 在temlate中判断 不会产生根节点 -->
+         <template v-if='article.cover.type > 0'>
+             <!-- 如果想要在事件处理自定义传参以后还想保留原来(传参以后会覆盖原来的参数)的那个事件的参数 在参数前加上$event,它就代表那个事件原本的参数 -->
+             <!-- 当你给子组件的数据提供的数组 即想修改又要使用 我们可以使用v-model 简化  它实现了 :value='article.cover.images[index]  和 @input='article.cover.images[index] = 事件参数''
+                v-mode只是简化了而已,本质上还是在父子组件通信
+              -->
+              <!-- <upload-cover v-for="(cover,index) in article.cover.type"  :key='cover' @update-cover='onUpdateCover(index,$event)' :cover-image="article.cover.images[index]"/> -->
+              <upload-cover v-for="(cover,index) in article.cover.type"  :key='cover' v-model="article.cover.images[index]" />
+         </template>
         </el-form-item>
         <el-form-item label="频道" prop="channel_id">
           <el-select v-model="article.channel_id" placeholder="请选择频道">
@@ -77,11 +86,13 @@ import {
   TextColor
 } from 'element-tiptap'
 import 'element-tiptap/lib/index.css'
+import UploadCover from './components/upload-cover.vue'
 
 export default {
   name: 'PublishIndex',
   components: {
-    'el-tiptap': ElementTiptap
+    'el-tiptap': ElementTiptap,
+    UploadCover
   },
   data () {
     return {
@@ -200,6 +211,10 @@ export default {
         // console.log(res)
         this.article = res.data.data
       })
+    },
+    onUpdateCover (index, url) {
+    //   console.log(index, url)
+      this.article.cover.images[index] = url // 数组前面的元素未定义时可以直接在指定索引插入元素,前面为空的元素自动填充undefined
     }
   },
   created () {

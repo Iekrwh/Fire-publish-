@@ -1,6 +1,9 @@
 // 基于 axios 封装的请求模块
 import axios from 'axios'
 import JSONbig from 'json-bigint'
+import router from '@/router'
+
+import { Message } from 'element-ui' // 单独引用element的消息组件
 
 // 创建一个axios实例  我们通过这个实例去罚请求,把需要的配置配置发给这个实例来处理
 const request = axios.create({
@@ -49,3 +52,28 @@ request.interceptors.request.use(
     return Promise.reject(error)
   }
 )
+
+// 响应拦截器
+// Add a response interceptor
+request.interceptors.response.use(function (response) {
+  // 响应成功进入这里 所有响应码为 2xx的都触发这个
+  return response // response是响应数据  一定要return否则后面请求无法拿到数据
+}, function (error) {
+  // 任何超出 2xx 的响应码都会进入到这来
+  if (error.response && error.response.status === 401) { // 请求失败为401 则判断用户未登陆 跳转到登陆页面
+    router.push('/login')
+    window.localStorage.removeItem('user') // 清除user本地存储
+    Message.error('登陆状态无效,请重新登陆')
+  } else if (error.response.status === 403) {
+    // 没有操作权限  token 未携带或已过期
+    Message.error('没有操作权限')
+  } else if (error.response.status === 400) {
+    // 客户端参数错误
+    Message.error('客户端参数错误')
+  } else if (error.response.status >= 500) {
+    // 服务端错误
+    Message.error('服务端错误')
+  }
+
+  return Promise.reject(error)
+})

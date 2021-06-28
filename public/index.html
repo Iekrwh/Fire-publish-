@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script src="http://api.map.baidu.com/api?v=2.0&ak=BmASyeSlo1hWoR0mekxBq5uciHjh2eH3"></script>
+    <!-- 百度api key  百度地图会在全局暴露一个数据 : BMap  要在项目中访问第三方全局数据必须加 window 前缀 -->
   </head>
   <body>
     <noscript>
