@@ -148,7 +148,7 @@ export default {
       deleteImages(img.id).then(res => { // 删除接口
         // this.loadImages(this.page)
         console.log('重载')
-        this.loadImages(this.page) // 删除之后重新获取列表不知道为什么会失败 方法体都没有传,loadimages没问题
+        this.loadImages(1) // 删除之后重新获取列表不知道为什么会失败 方法体都没有传,loadimages没问题
       })
     },
     onPageChange (page) { // 当页码发生改变的页码数
